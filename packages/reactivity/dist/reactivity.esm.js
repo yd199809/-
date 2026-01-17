@@ -4,9 +4,14 @@ var ReactiveEffect = class {
   constructor(fn) {
     this.fn = fn;
   }
+  // 依赖项链表的头节点
+  deps;
+  // 依赖项链表的尾节点
+  depsTail;
   run() {
     const prevSub = activeSub;
     activeSub = this;
+    this.depsTail = void 0;
     try {
       return this.fn();
     } finally {
@@ -32,19 +37,34 @@ function effect(fn, options) {
 }
 
 // packages/reactivity/src/system.ts
-function link(dependent, sub) {
+function link(dep, sub) {
+  const currentDep = sub.depsTail;
+  const nextDep = currentDep === void 0 ? sub.deps : currentDep.nextDep;
+  if (nextDep && nextDep.dep === dep) {
+    sub.depsTail = nextDep;
+    return;
+  }
   const newLink = {
     sub,
+    dep,
     nextSub: void 0,
-    prevSub: void 0
+    prevSub: void 0,
+    nextDep: void 0
   };
-  if (dependent.subsTail) {
-    dependent.subsTail.nextSub = newLink;
-    newLink.prevSub = dependent.subsTail;
-    dependent.subsTail = newLink;
+  if (dep.subsTail) {
+    dep.subsTail.nextSub = newLink;
+    newLink.prevSub = dep.subsTail;
+    dep.subsTail = newLink;
   } else {
-    dependent.subs = newLink;
-    dependent.subsTail = newLink;
+    dep.subs = newLink;
+    dep.subsTail = newLink;
+  }
+  if (sub.depsTail) {
+    sub.depsTail.nextDep = newLink;
+    sub.depsTail = newLink;
+  } else {
+    sub.deps = newLink;
+    sub.depsTail = newLink;
   }
 }
 function propagete(subs) {
@@ -75,14 +95,12 @@ var RefImpl = class {
     this._value = value;
   }
   get value() {
-    console.log("\u6709\u4EBA\u8BBF\u95EE\u4E86", activeSub);
     if (activeSub) {
       trackRef(this);
     }
     return this._value;
   }
   set value(newValue) {
-    console.log("\u89E6\u53D1\u4FEE\u6539\u4E86");
     this._value = newValue;
     triggerRef(this);
   }
@@ -93,14 +111,14 @@ function ref(value) {
 function isRef(value) {
   return !!(value && value["__v_isRef" /* IS_REF */]);
 }
-function trackRef(dependent) {
+function trackRef(dep) {
   if (activeSub) {
-    link(dependent, activeSub);
+    link(dep, activeSub);
   }
 }
-function triggerRef(dependent) {
-  if (dependent.subs) {
-    propagete(dependent.subs);
+function triggerRef(dep) {
+  if (dep.subs) {
+    propagete(dep.subs);
   }
 }
 export {

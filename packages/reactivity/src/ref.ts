@@ -29,7 +29,6 @@ class RefImpl {
   }
 
   get value() {
-    console.log("有人访问了", activeSub);
     // 收集依赖
     if (activeSub) {
       trackRef(this);
@@ -37,7 +36,6 @@ class RefImpl {
     return this._value;
   }
   set value(newValue) {
-    console.log("触发修改了");
     this._value = newValue;
     triggerRef(this);
   }
@@ -56,20 +54,20 @@ export function isRef(value) {
 
 /**
  * 收集依赖 建立 effect 与 ref 之间的链表关系
- * @param dependent
+ * @param dep
  */
-export function trackRef(dependent: RefImpl) {
+export function trackRef(dep: RefImpl) {
   if (activeSub) {
-    link(dependent, activeSub);
+    link(dep, activeSub);
   }
 }
 
 /**
  * 触发依赖 ref 关联的 effect 重新执行
- * @param dependent
+ * @param dep
  */
-export function triggerRef(dependent: RefImpl) {
-  if (dependent.subs) {
-    propagete(dependent.subs);
+export function triggerRef(dep: RefImpl) {
+  if (dep.subs) {
+    propagete(dep.subs);
   }
 }

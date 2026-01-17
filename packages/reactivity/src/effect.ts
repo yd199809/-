@@ -1,13 +1,20 @@
+import { Link } from "./system";
+
 // 用来保存当前正在执行的effect
 export let activeSub;
 
 export class ReactiveEffect {
+  // 依赖项链表的头节点
+  deps: Link | undefined;
+  // 依赖项链表的尾节点
+  depsTail: Link | undefined;
   constructor(public fn: () => void) {}
   run() {
     // 先将当前的 effect 保存起来 用于处理嵌套的逻辑
     const prevSub = activeSub;
     // 每次执行fn之前 把this 放到 activeSub上
     activeSub = this;
+    this.depsTail = undefined;
     try {
       return this.fn();
     } finally {
