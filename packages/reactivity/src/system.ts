@@ -21,7 +21,7 @@ export function link(dependent: any, sub: ReactiveEffect) {
     prevSub: undefined,
   };
   /**
-       *关联链表关系
+       关联链表关系
        1：如果有尾节点就在尾节点后面添加
        2：没有尾节点 就是头节点
        */
@@ -47,5 +47,5 @@ export function propagete(subs: Link | undefined) {
     queuedEffects.push(link.sub);
     link = link.nextSub;
   }
-  queuedEffects.forEach((effect) => effect.run());
+  queuedEffects.forEach((effect) => effect.notify());
 }
