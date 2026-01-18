@@ -31,7 +31,7 @@
         import { ref, effect } from "../dist/reactivity.esm.js";
         // import { ref, effect } from "../../../node_modules/vue/dist/vue.esm-browser.js";
         // console.log(ref);
-
+        // 重新执行 effect 的时候
         const flag = ref(true);
         const count = ref(0)
         const e = effect(() => {
@@ -43,7 +43,7 @@
         btn.onclick = () => {
             // flag.value = !flag.value
             count.value++
-            // console.log(flag)
+            console.log(flag)
         }
     </script>
 </body>

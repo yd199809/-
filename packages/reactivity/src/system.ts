@@ -8,9 +8,9 @@ interface Dep {
 }
 
 interface Sub {
-  // 订阅者链表的头节点
+  // 依赖项链表的头节点
   deps: Link | undefined;
-  // 订阅者链表的尾节点
+  // 依赖项链表的尾节点
   depsTail: Link | undefined;
 }
 
@@ -36,9 +36,10 @@ export function link(dep: any, sub: ReactiveEffect) {
   // 尝试复用链表节点
   const currentDep = sub.depsTail;
   // 分两种情况
-  // 如果头节点有 尾节点没有 尝试复用头节点
-  // 如果尾节点还有 nextDep 尝试复用尾节点的 nextDep
+  // 如果 sub.depsTail 没有 如果头节点sub.deps 有 尝试复用头节点
+  // sub.depsTail 如果尾节点还有 nextDep 尝试复用尾节点的 nextDep
   const nextDep = currentDep === undefined ? sub.deps : currentDep.nextDep;
+  // 尾节点没有 头节点有
   if (nextDep && nextDep.dep === dep) {
     sub.depsTail = nextDep;
     return;
@@ -89,7 +90,7 @@ export function link(dep: any, sub: ReactiveEffect) {
  * @param subs
  */
 export function propagete(subs: Link | undefined) {
-  //通知effect更新 触发subs 拿到最新的值
+  //通知 effect 更新 触发subs 拿到最新的值
   let link = subs;
   let queuedEffects = [];
   while (link) {

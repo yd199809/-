@@ -14,6 +14,7 @@ export class ReactiveEffect {
     const prevSub = activeSub;
     // 每次执行fn之前 把this 放到 activeSub上
     activeSub = this;
+    // 标记为 undefined 表示被 dep 触发了重新执行 要尝试复用 link 节点
     this.depsTail = undefined;
     try {
       return this.fn();
