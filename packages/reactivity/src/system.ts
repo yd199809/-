@@ -51,7 +51,7 @@ export function link(dep: any, sub: ReactiveEffect) {
     dep,
     nextSub: undefined,
     prevSub: undefined,
-    nextDep: undefined,
+    nextDep,
   };
 
   /**

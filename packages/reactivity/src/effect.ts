@@ -19,7 +19,7 @@ export class ReactiveEffect {
     try {
       return this.fn();
     } finally {
-      console.log("应该被移除", this.depsTail?.nextDep);
+      endTrack(this);
       // 执行完毕后 恢复
       activeSub = prevSub;
     }
@@ -34,6 +34,21 @@ export class ReactiveEffect {
   // 默认调用 run 如果用户传了 就以用户的为准 示例属性优先级高于原型属性
   scheduler() {
     this.run();
+  }
+}
+
+function endTrack(sub) {
+  const depsTail = sub.depsTail;
+  /**
+   * depsTail有，并且depsTail还有nextDep，应该把它们的依赖关系清理掉
+   * depsTail没有，并且还有头节点，那就全部清理
+   */
+  if (depsTail) {
+    if (depsTail.nextDep) {
+      console.log("把它移除", depsTail.nextDep);
+    } else if (sub.deps) {
+      console.log("从头开始删除", sub.deps);
+    }
   }
 }
 

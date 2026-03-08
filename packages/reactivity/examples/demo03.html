@@ -17,7 +17,12 @@
     const name = ref("一丁");
     const age = ref(18);
 
+    let count = 0;
+
     const e = effect(() => {
+      console.count("effect");
+      // if (count > 0) return;
+      // count++;
       if (flag.value) {
         app.innerHTML = name.value;
       } else {
@@ -27,12 +32,11 @@
 
     flagBtn.onclick = () => {
       flag.value = !flag.value;
-      //   console.log(flag);
+      console.dir(e);
     };
 
     nameBtn.onclick = () => {
       name.value = name.value + Math.random();
-      console.dir(e);
     };
 
     ageBtn.onclick = () => {
