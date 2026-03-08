@@ -19,6 +19,7 @@ export class ReactiveEffect {
     try {
       return this.fn();
     } finally {
+      console.log("应该被移除", this.depsTail?.nextDep);
       // 执行完毕后 恢复
       activeSub = prevSub;
     }

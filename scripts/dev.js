@@ -44,7 +44,7 @@ console.log("entry => ", entry);
  */
 const outfile = resolve(
   __dirname,
-  `../packages/${target}/dist/${target}.${format}.js`
+  `../packages/${target}/dist/${target}.${format}.js`,
 );
 
 const pkg = require(`../packages/${target}/package.json`);

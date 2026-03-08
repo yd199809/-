@@ -89,7 +89,7 @@ export function link(dep: any, sub: ReactiveEffect) {
  * 通知effect更新 触发subs 拿到最新的值
  * @param subs
  */
-export function propagete(subs: Link | undefined) {
+export function propagate(subs: Link | undefined) {
   //通知 effect 更新 触发subs 拿到最新的值
   let link = subs;
   let queuedEffects = [];
