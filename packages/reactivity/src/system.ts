@@ -1,6 +1,6 @@
 import { ReactiveEffect } from "./effect";
 // 依赖项
-interface Dep {
+interface Dependency {
   // 订阅者链表的头节点
   subs: Link | undefined;
   // 订阅者链表的尾节点
@@ -8,6 +8,7 @@ interface Dep {
 }
 
 interface Sub {
+  tracking: any;
   // 依赖项链表的头节点
   deps: Link | undefined;
   // 依赖项链表的尾节点
@@ -24,7 +25,7 @@ export interface Link {
   // 上一个订阅者节点
   prevSub: Link | undefined;
   // 依赖项
-  dep: Dep;
+  dep: Dependency;
   // 下一个依赖项节点
   nextDep: Link | undefined;
 }
@@ -100,25 +101,11 @@ export function link(dep: any, sub: ReactiveEffect) {
 }
 
 /**
- * 通知effect更新 触发subs 拿到最新的值
- * @param subs
- */
-export function propagate(subs: Link | undefined) {
-  //通知 effect 更新 触发subs 拿到最新的值
-  let link = subs;
-  let queuedEffects = [];
-  while (link) {
-    queuedEffects.push(link.sub);
-    link = link.nextSub;
-  }
-  queuedEffects.forEach((effect) => effect.notify());
-}
-
-/**
  * 开始追踪依赖，将depsTail，尾节点设置为undefin
  * @param sub
  */
 export function startTrack(sub) {
+  sub.tracking = true;
   sub.depsTail = undefined;
 }
 
@@ -127,6 +114,7 @@ export function startTrack(sub) {
  * @param sub
  */
 export function endTrack(sub) {
+  sub.tracking = false;
   const depsTail = sub.depsTail;
   /**
    * depsTail有，并且depsTail还有nextDep，应该把它们的依赖关系清理掉
@@ -181,4 +169,23 @@ export function clearTracking(link: Link) {
     linkPool = link;
     link = nextDep;
   }
+}
+
+/**
+ * 通知effect更新 触发subs 拿到最新的值
+ * @param subs
+ */
+export function propagate(subs: Link | undefined) {
+  //通知 effect 更新 触发subs 拿到最新的值
+  let link = subs;
+  let queuedEffects = [];
+  while (link) {
+    const sub = link.sub;
+    if (!sub.tracking) {
+      queuedEffects.push(link.sub);
+    }
+
+    link = link.nextSub;
+  }
+  queuedEffects.forEach((effect) => effect.notify());
 }

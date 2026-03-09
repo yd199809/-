@@ -8,6 +8,7 @@ export class ReactiveEffect {
   deps: Link | undefined;
   // 依赖项链表的尾节点
   depsTail: Link | undefined;
+  tracking = false;
   constructor(public fn: () => void) {}
   run() {
     // 先将当前的 effect 保存起来 用于处理嵌套的逻辑
