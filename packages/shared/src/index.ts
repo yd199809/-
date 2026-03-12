@@ -11,3 +11,12 @@ export function isObject(value) {
 export function hasChanged(newValue, oldValue) {
   return !Object.is(newValue, oldValue);
 }
+
+/**
+ * 判断值是否是函数
+ * @param value
+ * @returns
+ */
+export function isFunction(value) {
+  return typeof value === "function";
+}

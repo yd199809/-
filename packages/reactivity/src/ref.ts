@@ -3,7 +3,7 @@ import { activeSub } from "./effect";
 import { link, propagate, Link } from "./system";
 import { reactive } from "vue";
 
-enum ReactiveFlags {
+export enum ReactiveFlags {
   IS_REF = "__v_isRef",
 }
 

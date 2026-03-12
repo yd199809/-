@@ -1,14 +1,14 @@
 import { ReactiveEffect } from "./effect";
 // 依赖项
-interface Dependency {
+export interface Dependency {
   // 订阅者链表的头节点
   subs: Link | undefined;
   // 订阅者链表的尾节点
   subsTail: Link | undefined;
 }
 
-interface Sub {
-  tracking: any;
+export interface Sub {
+  tracking: boolean;
   // 依赖项链表的头节点
   deps: Link | undefined;
   // 依赖项链表的尾节点
@@ -171,6 +171,16 @@ export function clearTracking(link: Link) {
   }
 }
 
+function processComputedUpdate(sub) {
+  /**
+   * 更新计算属性
+   * 1:调用 update
+   * 2: 通知 subs 链表上的 sub 重新执行
+   */
+  sub.update();
+  propagate(sub.subs);
+}
+
 /**
  * 通知effect更新 触发subs 拿到最新的值
  * @param subs
@@ -182,7 +192,11 @@ export function propagate(subs: Link | undefined) {
   while (link) {
     const sub = link.sub;
     if (!sub.tracking) {
-      queuedEffects.push(link.sub);
+      if ("update" in sub) {
+        processComputedUpdate(sub);
+      } else {
+        queuedEffects.push(sub);
+      }
     }
 
     link = link.nextSub;
