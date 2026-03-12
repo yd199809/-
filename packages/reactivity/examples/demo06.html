@@ -26,15 +26,15 @@
       //  * 它即使一个 sub
       //  * 又是一个 dep
       //  */
-      const c = computed(() => {
-        // console.count("computed");
-        return count.value + 1;
-      });
+      // const c = computed(() => {
+      //   console.count("computed");
+      //   return count.value * 0;
+      // });
 
       effect(() => {
-        // console.count("effect");
-        console.log(c.value);
-        // count.value;
+        console.count("effect");
+        console.log(count.value);
+        count.value;
       });
 
       setTimeout(() => {

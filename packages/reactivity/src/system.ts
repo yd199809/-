@@ -13,6 +13,9 @@ export interface Sub {
   deps: Link | undefined;
   // 依赖项链表的尾节点
   depsTail: Link | undefined;
+  // 给计算属性（Computed Effect）预留的可选属性
+  update?: () => void;
+  dirty?: boolean;
 }
 
 // 链表节点
@@ -116,6 +119,8 @@ export function startTrack(sub) {
 export function endTrack(sub) {
   sub.tracking = false;
   const depsTail = sub.depsTail;
+  // 追踪完了
+  sub.dirty = false;
   /**
    * depsTail有，并且depsTail还有nextDep，应该把它们的依赖关系清理掉
    * depsTail没有，并且还有头节点，那就全部清理
@@ -177,8 +182,11 @@ function processComputedUpdate(sub) {
    * 1:调用 update
    * 2: 通知 subs 链表上的 sub 重新执行
    */
-  sub.update();
-  propagate(sub.subs);
+  if (sub.subs && sub.update()) {
+    // sub.update 返回 true 说明值发生了变化
+    sub.update();
+    propagate(sub.subs);
+  }
 }
 
 /**
@@ -191,7 +199,8 @@ export function propagate(subs: Link | undefined) {
   let queuedEffects = [];
   while (link) {
     const sub = link.sub;
-    if (!sub.tracking) {
+    if (!sub.tracking && !sub.dirty) {
+      sub.dirty = true;
       if ("update" in sub) {
         processComputedUpdate(sub);
       } else {
